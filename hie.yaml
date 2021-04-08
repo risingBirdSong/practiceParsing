@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "parsing:lib"
+
+    - path: "./app/Main.hs"
+      component: "parsing:exe:parsing-exe"
+
+    - path: "./app/Paths_parsing.hs"
+      component: "parsing:exe:parsing-exe"
+
+    - path: "./test"
+      component: "parsing:test:parsing-test"
