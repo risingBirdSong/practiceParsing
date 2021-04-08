@@ -12,7 +12,21 @@ data Address = Address {
 
 test = Address "john" "doe" "120 jefferson st" "riverside" "nj" 08075
 
-makeAddressFromCSV_A line = Address firstName' lastName' street' city' state' (read zip')
+makeAddressFromCSV'A line = Address firstName' lastName' street' city' state' (read zip')
     where all@[firstName', lastName', street', city', state', zip'] = splitOn "," line
 
+makeAddressFromCSV'B line =  case (splitOn "," line) of 
+                                [firstName', lastName', street', city', state', zip']
+                                     ->  Right (Address firstName' lastName' street' city' state' (read zip'))
+                                _ -> Left ("something went wrong")
+                                
+                                    -- _ -> Left ("something went wrong")
+main = do 
+   thefile <- readFile "src/addresseseasy.csv"
+   let mapped = map makeAddressFromCSV'A $ lines thefile
+   mapM_ print mapped
 
+mainB = do 
+   thefile <- readFile "src/addresses.csv"
+   let mapped = map makeAddressFromCSV'B $ lines thefile
+   mapM_ print mapped
