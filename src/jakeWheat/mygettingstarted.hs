@@ -382,3 +382,7 @@ numOrVar' = choice [numE,varE]
 
 simpleExpr :: Parser SimpleExpr
 simpleExpr = numE P.<|> varE P.<|> addE P.<|> parensE
+
+
+simpleExpr2 :: Parser SimpleExpr
+simpleExpr2 = try addE P.<|> numE P.<|> varE P.<|> parensE
