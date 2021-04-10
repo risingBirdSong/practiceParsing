@@ -386,3 +386,72 @@ simpleExpr = numE P.<|> varE P.<|> addE P.<|> parensE
 
 simpleExpr2 :: Parser SimpleExpr
 simpleExpr2 = try addE P.<|> numE P.<|> varE P.<|> parensE
+
+
+parensE3 :: Parser SimpleExpr
+parensE3 = do
+    void $ lexeme $ char '('
+    e <- simpleExpr3
+    void $ lexeme $ char ')'
+    return $ Parens e
+
+addE3 :: Parser SimpleExpr
+addE3 = do
+    e0 <- simpleExpr3
+    void $ lexeme $ char '+'
+    e1 <- simpleExpr3
+    return $ Add e0 e1
+
+
+
+simpleExpr3 :: Parser SimpleExpr
+simpleExpr3 = try addE3 P.<|> numE P.<|> varE P.<|> parensE3
+
+
+-- the problem here is infinite recursion because addE3 and simpleExpr3 keep calling each other
+
+
+parensE4 :: Parser SimpleExpr
+parensE4 = do
+    void $ lexeme $ char '('
+    e <- simpleExpr4
+    void $ lexeme $ char ')'
+    return $ Parens e
+
+
+simpleExpr4 :: Parser SimpleExpr
+simpleExpr4 = numE P.<|> varE P.<|> parensE4
+
+
+data ValidBraces = Var' Int | Parens' ValidBraces | List' ValidBraces | Curly' ValidBraces deriving (Show, Eq)
+
+
+parensMatch :: Parser ValidBraces
+parensMatch = do 
+  void $ lexeme $ char '('
+  e <- checkBalance
+  void $ lexeme $ char ')'
+  return $ Parens' e
+
+listMatch :: Parser ValidBraces
+listMatch = do 
+  void $ lexeme $ char '['
+  e <- checkBalance
+  void $ lexeme $ char ']'
+  return $ List' e
+
+curlyMatch :: Parser ValidBraces
+curlyMatch = do 
+  void $ lexeme $ char '{'
+  e <- checkBalance
+  void $ lexeme $ char '}'
+  return $ Curly' e
+
+checkVar' :: Parser ValidBraces
+checkVar' = do 
+  dgt <- many1 digit
+  return $ Var' (read dgt) 
+ 
+
+checkBalance :: Parser ValidBraces
+checkBalance = try parensMatch P.<|> listMatch P.<|> curlyMatch P.<|> checkVar'
