@@ -423,7 +423,7 @@ simpleExpr4 :: Parser SimpleExpr
 simpleExpr4 = numE P.<|> varE P.<|> parensE4
 
 
-data ValidBraces = Var' Int | Parens' ValidBraces | List' ValidBraces | Curly' ValidBraces deriving (Show, Eq)
+data ValidBraces = Num' Int | Parens' ValidBraces | List' ValidBraces | Curly' ValidBraces deriving (Show, Eq)
 
 
 parensMatch :: Parser ValidBraces
@@ -447,11 +447,11 @@ curlyMatch = do
   void $ lexeme $ char '}'
   return $ Curly' e
 
-checkVar' :: Parser ValidBraces
-checkVar' = do 
+numMatch' :: Parser ValidBraces
+numMatch' = do 
   dgt <- many1 digit
-  return $ Var' (read dgt) 
+  return $ Num' (read dgt) 
  
 
 checkBalance :: Parser ValidBraces
-checkBalance = try parensMatch P.<|> listMatch P.<|> curlyMatch P.<|> checkVar'
+checkBalance = try parensMatch P.<|> listMatch P.<|> curlyMatch P.<|> numMatch'
