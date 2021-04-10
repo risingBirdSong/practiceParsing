@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "parsing",
+			"path": ".."
+		},
+		{
+			"name": "CSV_Data",
+			"path": "../../../../../Documents/CSV_Data"
+		}
+	],
+	"settings": {}
+}

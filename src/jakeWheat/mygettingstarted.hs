@@ -16,11 +16,11 @@ import qualified Text.Parsec.Combinator as Comb
 import qualified Text.Parsec.Expr as E
 import qualified Text.Parsec as P
 
+import Data.Char
+
 import Text.Parsec (ParseError)
 import Control.Applicative ((<$>), (<*>), (<*), (*>), many)
 import Control.Monad (void)
-
-
 
 
 
@@ -210,3 +210,94 @@ parse = P.parse
 
 regularParse :: Parser a -> String -> Either ParseError a
 regularParse p = parse p ""
+
+parseWithEof :: Parser a -> String -> Either ParseError a
+parseWithEof p = parse (p <* eof) ""
+
+
+parseWithLeftOver :: Parser a -> String -> Either ParseError (a,String)
+parseWithLeftOver p = parse ((,) <$> p <*> leftOver) ""
+   where leftOver = manyTill anyToken eof
+
+
+num :: Parser Integer 
+num = do 
+  n <- many1 digit
+  return (read n)
+
+
+var :: Parser String
+var = do
+    fc <- firstChar
+    rest <- many nonFirstChar
+    return (fc:rest)
+  where
+    firstChar = satisfy (\a -> isLetter a || a == '_')
+    nonFirstChar = satisfy (\a -> isDigit a || isLetter a || a == '_')
+
+
+data Parentheses = Parentheses Integer
+                   deriving (Eq,Show)
+
+
+parens :: Parser Parentheses
+parens = do
+    void $ char '('
+    e <- many1 digit
+    void $ char ')'
+    return (Parentheses (read e))
+
+-- parensWithWarning :: Parser Parentheses
+-- parensWithWarning = do
+--     char '('
+--     e <- many1 digit
+--     char ')'
+--     return (Parentheses (read e))
+
+data SingleAdd = SingleAdd Integer Integer
+                 deriving (Eq,Show)
+
+addP :: Parser SingleAdd
+addP = do
+    e0 <- many1 digit
+    void $ char '+'
+    e1 <- many1 digit
+    return (SingleAdd (read e0) (read e1))
+
+
+whitespace :: Parser ()
+whitespace = void $ many $ oneOf " \n\t"
+
+
+parensW :: Parser Parentheses
+parensW = do
+    whitespace
+    void $ char '('
+    whitespace
+    e <- many1 digit
+    whitespace
+    void $ char ')'
+    whitespace
+    return (Parentheses (read e))
+
+
+lexeme :: Parser a -> Parser a
+lexeme p = do
+           x <- p
+           whitespace
+           return x
+
+parseWithWhitespace :: Parser a -> String -> Either ParseError a
+parseWithWhitespace p = parseWithEof wrapper
+  where
+    wrapper = do
+        whitespace
+        p
+
+
+parensL :: Parser Parentheses
+parensL = do
+    void $ lexeme $ char '('
+    e <- lexeme $ many1 digit
+    void $ lexeme $ char ')'
+    return (Parentheses (read e))
