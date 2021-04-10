@@ -264,6 +264,13 @@ addP = do
     e1 <- many1 digit
     return (SingleAdd (read e0) (read e1))
 
+addP' :: Parser SingleAdd
+addP' = do 
+  a <- lexeme $ many1 digit 
+  void $ lexeme $ char '+'
+  b <- lexeme $ many1 digit
+  return (SingleAdd (read a) (read b))
+
 
 whitespace :: Parser ()
 whitespace = void $ many $ oneOf " \n\t"
@@ -301,3 +308,77 @@ parensL = do
     e <- lexeme $ many1 digit
     void $ lexeme $ char ')'
     return (Parentheses (read e))
+
+
+parseWithWhitespace' :: Parser a -> String -> Either ParseError a
+parseWithWhitespace' p = parseWithEof (whitespace >> p)
+
+
+
+data SimpleExpr = Num Integer
+                | Var String
+                | Add SimpleExpr SimpleExpr
+                | Parens SimpleExpr
+                  deriving (Eq,Show)
+
+
+numE :: Parser SimpleExpr
+numE = do
+    n <- lexeme $ many1 digit
+    return $ Num $ read n
+
+
+varE :: Parser SimpleExpr
+varE = lexeme $ do
+    fc <- firstChar
+    rest <- many nonFirstChar
+    return $ Var (fc:rest)
+  where
+    firstChar = satisfy (\a -> isLetter a || a == '_')
+    nonFirstChar = satisfy (\a -> isDigit a || isLetter a || a == '_')
+
+
+parensE :: Parser SimpleExpr
+parensE = do
+    void $ lexeme $ char '('
+    e <- lexeme $ many1 digit
+    void $ lexeme $ char ')'
+    return $ Parens $ Num $ read e
+
+
+parensE' :: Parser SimpleExpr
+parensE' = do
+    void $ lexeme $ char '('
+    e <- numE
+    void $ lexeme $ char ')'
+    return $ Parens e
+
+
+addE :: Parser SimpleExpr
+addE = do
+    e0 <- numE
+    void $ lexeme $ char '+'
+    e1 <- numE
+    return $ Add e0 e1
+
+-- *Main> parseWithWhitespace addE "1+2"
+-- Right (Add (Num 1) (Num 2))
+
+
+addAST (Right (Add (Num a) (Num b))) = Num (a + b)
+
+
+-- *Main> addAST (Right (Add (Num 1) (Num 2)))
+-- Num 3
+
+
+numOrVar :: Parser SimpleExpr
+numOrVar = numE P.<|> varE
+
+
+numOrVar' :: Parser SimpleExpr
+numOrVar' = choice [numE,varE]
+
+
+simpleExpr :: Parser SimpleExpr
+simpleExpr = numE P.<|> varE P.<|> addE P.<|> parensE
