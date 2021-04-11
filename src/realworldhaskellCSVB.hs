@@ -29,3 +29,7 @@ parseCSV' = do
     case results of
         (Right v) -> print v 
         (Left e) -> print e
+
+-- *Main> parseCSV'
+-- "1,hello,brownie\n2,goodbye,pickle    "
+-- [["1","hello","brownie"],["2","goodbye","pickle"]]
