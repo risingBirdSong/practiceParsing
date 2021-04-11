@@ -6,26 +6,30 @@ import Debug.Trace
 -- import Control.Monad
 
 
-csvFile = endBy line eol
+csvFile =  try (endBy line eol) <|> try (spaces >> (return [])) <|> (eof >> return [])
 line = sepBy cell (char ',')
 cell = many (noneOf ",\n\r")
+
+-- eol =   try (string "\n\r")
+--     <|> try (string "\r\n")
+--     <|> string "\n"
+--     <|> string "\r"
 
 eol =   try (string "\n\r")
     <|> try (string "\r\n")
     <|> string "\n"
     <|> string "\r"
-
 trim = dropWhileEnd isSpace . dropWhile isSpace
 
 
 parseCSV :: String -> Either ParseError [[String]]
-parseCSV input = parse csvFile "(unknown)" input
+parseCSV input = parse (csvFile) "(unknown)" input
 
 parseCSV' = do 
     file <- readFile "src/clean.csv"
     let cleaned = (trim file) ++ "\n"
     print file
-    let results = parseCSV cleaned 
+    let results = parseCSV file 
     case results of
         (Right v) -> print v 
         (Left e) -> print e

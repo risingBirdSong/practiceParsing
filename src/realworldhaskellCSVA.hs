@@ -43,3 +43,8 @@ eol = char '\n'
 
 parseCSV :: String -> Either ParseError [[String]]
 parseCSV input = parse csvFile "(unknown)" input
+
+parseCSV' = do 
+   file <- readFile "src/clean.csv"
+   print file 
+   return (parse csvFile "" file)
