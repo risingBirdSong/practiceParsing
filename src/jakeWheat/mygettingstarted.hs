@@ -452,6 +452,9 @@ numMatch' = do
   dgt <- many1 digit
   return $ Num' (read dgt) 
  
+eol = char '\n'
+
 
 checkBalance :: Parser ValidBraces
-checkBalance = try parensMatch P.<|> listMatch P.<|> curlyMatch P.<|> numMatch'
+checkBalance =  try parensMatch P.<|> listMatch P.<|> curlyMatch P.<|> numMatch'
+

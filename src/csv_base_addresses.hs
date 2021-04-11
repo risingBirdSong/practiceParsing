@@ -10,6 +10,8 @@ data Address = Address {
     zip :: Int 
 } deriving (Eq, Show, Read)
 
+-- mytestobj = Address {firstName = "Bernie", lastName}
+
 test = Address "john" "doe" "120 jefferson st" "riverside" "nj" 08075
 
 makeAddressFromCSV'A line = Address firstName' lastName' street' city' state' (read zip')
