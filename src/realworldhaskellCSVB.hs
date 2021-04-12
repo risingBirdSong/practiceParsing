@@ -6,14 +6,13 @@ import Debug.Trace
 -- import Control.Monad
 
 
-csvFile =  try (endBy line eol) <|> try (spaces >> (return [])) <|> (eof >> return [])
+csvFile = (sepEndBy line eol)
+-- csvFile = endBy line eol
+
+
 line = sepBy cell (char ',')
 cell = many (noneOf ",\n\r")
 
--- eol =   try (string "\n\r")
---     <|> try (string "\r\n")
---     <|> string "\n"
---     <|> string "\r"
 
 eol =   try (string "\n\r")
     <|> try (string "\r\n")
