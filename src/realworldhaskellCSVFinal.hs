@@ -32,7 +32,7 @@ main =
 
 
 parseCSV' = do 
-    file <- readFile "src/clean.csv"
+    file <- readFile "src/addresses.csv"
     print file 
     let results = parseCSV (file ++ "\n") 
     case results of 
