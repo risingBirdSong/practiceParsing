@@ -26,9 +26,7 @@ parseCSV input = parse (csvFile) "(unknown)" input
 
 parseCSV' = do 
     file <- readFile "src/clean.csv"
-    let cleaned = (trim file) ++ "\n"
-    print file
-    let results = parseCSV file 
+    let results = parseCSV (trim file) 
     case results of
         (Right v) -> print v 
         (Left e) -> print e
