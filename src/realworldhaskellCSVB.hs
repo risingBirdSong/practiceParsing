@@ -9,11 +9,8 @@ import Debug.Trace
 csvFile = (sepEndBy line eol)
 -- csvFile = endBy line eol
 
-
 line = sepBy cell (char ',')
 cell = many (noneOf ",\n\r")
-
-
 eol =   try (string "\n\r")
     <|> try (string "\r\n")
     <|> string "\n"
